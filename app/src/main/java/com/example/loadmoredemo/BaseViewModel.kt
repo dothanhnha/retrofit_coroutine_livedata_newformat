@@ -4,25 +4,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 
-abstract class BaseViewModel : ViewModel {
+abstract class BaseViewModel : ViewModel() {
 
-    constructor(){
-        setLoadingField()
-    }
 
     var eventCallBackStatusResponse: OnStatusResponseChange? = null
 
 
     interface OnStatusResponseChange {
         fun observeReponse()
-        fun onSuccessAll()
         fun onLoading()
         fun onError()
     }
 
-    open protected fun fetchData() {
-        setLoadingField()
-    }
     fun refreshData(){
         fetchData()
         eventCallBackStatusResponse?.observeReponse()
@@ -32,5 +25,5 @@ abstract class BaseViewModel : ViewModel {
         this.eventCallBackStatusResponse = eventCallBackStatusResponse
     }
 
-    abstract fun setLoadingField()
+    abstract fun fetchData()
 }

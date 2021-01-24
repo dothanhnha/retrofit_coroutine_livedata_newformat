@@ -6,6 +6,9 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.loadmoredemo.Exception.APIError
+import com.example.loadmoredemo.Exception.ApiServerException
+import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(),
@@ -22,18 +25,22 @@ class MainActivity : AppCompatActivity(),
         (application as MyApplication).appComponent.mainComponent().create()
             .inject(this)
         viewModel.setup(this, this)
-        viewModel.refreshData()
-
+        constraintLayout.setOnClickListener {
+            viewModel.refreshData()
+        }
     }
+
 
     override fun observeReponse() {
-        viewModel.currentWeather1.observe(this, Observer {
-            Log.d("test",it.toString())
-        })
-    }
+        viewModel.listRepositories.observe(this, Observer {
+            if(it.status == MyStatus.SUCCESS)
+                Log.d("test",it.data.toString())
+            else if(it.status == MyStatus.ERROR){
+                if(it.exception is ApiServerException)
+                Log.d("test", it.exception.serverErrorMessage!!)
+            }
 
-    override fun onSuccessAll() {
-        Log.d("test",viewModel.currentWeather1.value.toString())
+        })
     }
 
     override fun onLoading() {

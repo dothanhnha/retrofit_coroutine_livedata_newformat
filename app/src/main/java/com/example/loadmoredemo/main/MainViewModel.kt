@@ -9,18 +9,11 @@ class MainViewModel @Inject constructor(
     val mainRepos: MainRepos
 ):BaseViewModel(){
 
-    lateinit var currentWeather1: LiveData<MyResponse<List<Repository>>>
+    lateinit var listRepositories: LiveData<MyResponse<List<Repository>>>
 
     override fun fetchData() {
-        super.fetchData()
         viewModelScope.launch {
-            currentWeather1 = mainRepos?.getRepositories(SearchRepositoriesApi.SortType.STAR,"android",1,1)
-        }
-    }
-
-    override fun setLoadingField() {
-        currentWeather1 = liveData {
-            emit(MyResponse.loading())
+            listRepositories = mainRepos?.getRepositories(SearchRepositoriesApi.SortType.STAR,"",110,-1)
         }
     }
 }

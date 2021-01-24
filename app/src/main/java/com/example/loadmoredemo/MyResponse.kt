@@ -2,43 +2,62 @@ package com.example.loadmoredemo
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
+import com.example.loadmoredemo.Exception.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import retrofit2.Response
-import java.lang.Exception
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import java.util.concurrent.TimeoutException
 
-data class MyResponse<out T>(val status: MyStatus, val data: T?, val message: String?) {
+data class MyResponse<out T>(
+    val status: MyStatus,
+    val data: T?,
+    val exception: AbstractAppException?
+) {
     companion object {
-        val delayResponse:Long = 3000
-        fun <T> success(data: T): MyResponse<T> = MyResponse(status = MyStatus.SUCCESS, data = data, message = null)
+        val delayResponse: Long = 3000
+        fun <T> success(data: T): MyResponse<T> =
+            MyResponse(status = MyStatus.SUCCESS, data = data, exception = null)
 
-        fun <T> error(data: T?, message: String): MyResponse<T> =
-            MyResponse(status = MyStatus.ERROR, data = data, message = message)
+        fun <T> error(data: T?, exception: AbstractAppException?): MyResponse<T> =
+            MyResponse(status = MyStatus.ERROR, data = data, exception = exception)
 
-        fun <T> loading(): MyResponse<T> = MyResponse(status = MyStatus.LOADING, data = null, message = null)
+        fun <T> loading(): MyResponse<T> =
+            MyResponse(status = MyStatus.LOADING, data = null, exception = null)
 
-        suspend fun <T> createMyReponse(funcExcuteApi: ()->Response<T>) : LiveData<MyResponse<out T>>{
-            var result : LiveData<MyResponse<out T>> = liveData {
-                emit(MyResponse(MyStatus.LOADING, null, null))
-                withContext(Dispatchers.IO){
+        suspend fun <T> createMyReponse(funcExcuteApi: suspend () -> T): LiveData<MyResponse<out T>> {
+            var result: LiveData<MyResponse<out T>> = liveData {
+                emit(loading())
+                withContext(Dispatchers.IO) {
                     try {
                         val response = funcExcuteApi()
                         delay(delayResponse)
-                        if (response == null || !response.isSuccessful)
-                            emit(MyResponse(MyStatus.ERROR, null, response?.message()))
-                        else
-                            emit(MyResponse(MyStatus.SUCCESS, response?.body(), response?.message()))
-
-                    } catch (e: Exception) {
-                        emit(MyResponse(MyStatus.ERROR, null, e.message))
+                        emit(success(data = response))
+                    } catch (throwable: Throwable) {
+                        emit(MyResponse(MyStatus.ERROR, null, generateException(throwable)))
                     }
                 }
             }
-
             return result
         }
 
+        fun generateException(throwable: Throwable): AbstractAppException {
+            if (throwable is HttpException) {
+                return ApiServerException(throwable)
+            } else if (throwable is UnknownHostException) {
+                return ApiUnknownHostException(throwable)
+            } else if (throwable is TimeoutException || throwable is SocketTimeoutException) {
+                return ApiNetworkTimeoutException(throwable)
+            } else if (throwable is ConnectException || throwable is IOException) {
+                return ApiNetworkUnavailableException(throwable)
+            } else {
+                return ApiUnknownException(throwable)
+            }
+        }
     }
 
 }
