@@ -34,17 +34,17 @@ class MainActivity : AppCompatActivity(),
 
 
     override fun observeReponse() {
-        viewModel.listRepositories1.observe(this, {
+        viewModel.listRepositories1.observe(this) {
             Log.d("status_1",it.status.toString())
-        })
+        }
 
-        viewModel.listRepositories2.observe(this, {
+        viewModel.listRepositories2.observe(this) {
             Log.d("status_2",it.status.toString())
-        })
+        }
 
-        viewModel.listRepositories3.observe(this, {
+        viewModel.listRepositories3.observe(this) {
             Log.d("status_3",it.status.toString())
-        })
+        }
 
         lifecycleScope.launch {
             viewModel.groupField(viewModel.listRepositories1.asFlow(),viewModel.listRepositories2.asFlow(), viewModel.listRepositories3.asFlow()).collect {
