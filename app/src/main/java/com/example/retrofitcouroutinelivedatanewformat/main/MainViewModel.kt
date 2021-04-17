@@ -1,5 +1,6 @@
 package com.example.retrofitcouroutinelivedatanewformat
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.example.retrofitcouroutinelivedatanewformat.model.Repository
 import kotlinx.coroutines.flow.Flow
@@ -8,7 +9,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(
+class MainViewModel @ViewModelInject constructor(
     val mainRepos: MainRepos
 ):BaseViewModel(){
 

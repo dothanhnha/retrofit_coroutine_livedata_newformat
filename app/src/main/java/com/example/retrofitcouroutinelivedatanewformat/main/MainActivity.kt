@@ -6,25 +6,23 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.*
 import com.example.retrofitcouroutinelivedatanewformat.Exception.ApiServerException
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(),
     BaseViewModel.OnStatusResponseChange {
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val viewModel by viewModels<MainViewModel> { viewModelFactory }
+    private val viewModel: MainViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        (application as MyApplication).appComponent.mainComponent().create()
-            .inject(this)
         viewModel.setup(this, this)
         constraintLayout.setOnClickListener {
             viewModel.refreshData()
