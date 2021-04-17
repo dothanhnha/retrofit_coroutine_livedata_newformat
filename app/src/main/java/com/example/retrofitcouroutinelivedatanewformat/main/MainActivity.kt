@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.*
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.retrofitcouroutinelivedatanewformat.Exception.ApiServerException
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.coroutineScope
@@ -16,6 +17,8 @@ class MainActivity : AppCompatActivity(),
     BaseViewModel.OnStatusResponseChange {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var adapter: ReposAdapter
 
     private val viewModel by viewModels<MainViewModel> { viewModelFactory }
 
@@ -28,8 +31,20 @@ class MainActivity : AppCompatActivity(),
         viewModel.setup(this, this)
         constraintLayout.setOnClickListener {
             viewModel.refreshData()
+        }
+
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
+        recyclerView.adapter = this@MainActivity.adapter
+        lifecycleScope.launch {
+            viewModel.searchRepo().collect {
+                adapter.submitData(it)
             }
         }
+        button.setOnClickListener {
+            adapter.refresh()
+        }
+
+    }
 
 
 
