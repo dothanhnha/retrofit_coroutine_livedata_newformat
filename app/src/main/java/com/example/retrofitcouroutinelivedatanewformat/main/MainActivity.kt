@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.*
 import com.example.retrofitcouroutinelivedatanewformat.Exception.ApiServerException
+import com.example.retrofitcouroutinelivedatanewformat.di.Something
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.coroutineScope
@@ -18,6 +19,9 @@ class MainActivity : AppCompatActivity(),
     BaseViewModel.OnStatusResponseChange {
 
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject
+    lateinit var a: Something
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
